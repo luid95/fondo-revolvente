@@ -30,6 +30,9 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('solicitud.*') ? 'active' : '' }}" href="{{ route('solicitud.index') }}">Solicitud de Recurso</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('factura.*') ? 'active' : '' }}" href="{{ route('factura.index') }}">Comprobación Documental</a>
+                </li>
             </ul>
 
             <span class="navbar-text text-white">
