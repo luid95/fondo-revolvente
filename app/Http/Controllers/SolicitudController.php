@@ -15,7 +15,7 @@ class SolicitudController extends Controller
         $solicitudes = Solicitud::with('area')
         ->whereNull('deleted_at')
         ->orderBy('id')
-        ->paginate(3);
+        ->paginate(10);
 
         $fondo = Fondo::latest()->first();
         $monto = $fondo && !$fondo->deleted_at ? $fondo->monto : 0;
@@ -109,7 +109,21 @@ class SolicitudController extends Controller
 
     public function destroy(Solicitud $solicitud)
     {
+        if ($solicitud->facturas()->exists()) {
+            return redirect()->route('solicitud.index')
+                ->with('error', 'No se puede eliminar la solicitud porque tiene facturas asociadas.');
+        }
+    
         $solicitud->delete();
-        return redirect()->route('solicitud.index');
+        return redirect()->route('solicitud.index')
+            ->with('success', 'Solicitud eliminada correctamente.');
+
     }
+
+    public function facturasPreview($id)
+    {
+        $solicitud = Solicitud::with('facturas.proveedor', 'area')->findOrFail($id);
+        return view('partials.facturas_preview', compact('solicitud'));
+    }
+
 }

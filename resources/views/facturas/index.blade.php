@@ -9,7 +9,7 @@
         <select name="solicitud_id" id="solicitud_id" class="form-select" onchange="this.form.submit()">
             @foreach ($solicitudes as $sol)
                 <option value="{{ $sol->id }}" {{ $sol->id == $solicitudId ? 'selected' : '' }}>
-                    Solicitud #{{ $sol->id }} - Área: {{ $sol->area->nombre ?? 'N/A' }}
+                    Solicitud #{{ $sol->id }} - Área: {{ $sol->area->nombre ?? 'N/A' }} - Fecha: {{ $sol->fecha}} - Uso: {{ $sol->uso}} - Monto: ${{ $sol->monto}}
                 </option>
             @endforeach
         </select>
@@ -48,8 +48,8 @@
                     <td>{{ $factura->fecha_registro }}</td>
                     <td>{{ $factura->fecha_factura }}</td>
                     <td>{{ $factura->proveedor }}</td>
-                    <td>{{ $factura->concepto_gasto }}</td>
                     <td>${{ number_format($factura->importe, 2) }}</td>
+                    <td>{{ $factura->concepto_gasto }}</td>
                     <td>
                         @foreach(explode(',', $factura->situacion) as $sit)
                             @php

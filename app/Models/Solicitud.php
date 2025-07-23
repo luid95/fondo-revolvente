@@ -26,4 +26,15 @@ class Solicitud extends Model
     {
         return $this->belongsTo(Area::class);
     }
+
+    public function facturas()
+    {
+        return $this->hasMany(Factura::class);
+    }
+
+    public function reposicion()
+    {
+        return $this->belongsTo(Reposicion::class);
+    }
+
 }

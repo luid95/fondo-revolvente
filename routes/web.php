@@ -5,6 +5,7 @@ use App\Http\Controllers\FondoController;
 use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\FacturaController;
+use App\Http\Controllers\ReposicionController;
 
 Route::get('/', [FondoController::class, 'index'])->name('fondo.index');
 Route::get('/fondo/edit', [FondoController::class, 'edit'])->name('fondo.edit');
@@ -15,6 +16,7 @@ Route::post('/solicitudes', [SolicitudController::class, 'store'])->name('solici
 Route::get('/solicitudes/{solicitud}/edit', [SolicitudController::class, 'edit'])->name('solicitud.edit');
 Route::put('/solicitudes/{solicitud}', [SolicitudController::class, 'update'])->name('solicitud.update');
 Route::delete('/solicitudes/{solicitud}', [SolicitudController::class, 'destroy'])->name('solicitud.destroy');
+Route::get('/solicitud/{id}/facturas-preview', [SolicitudController::class, 'facturasPreview']);
 
 Route::get('/areas', [AreaController::class, 'create'])->name('area.create');
 Route::put('/areas/{id}/restaurar', [AreaController::class, 'restore'])->name('areas.restore');
@@ -30,3 +32,13 @@ Route::get('/facturas/{factura}/edit', [FacturaController::class, 'edit'])->name
 Route::put('/facturas/{factura}', [FacturaController::class, 'update'])->name('factura.update'); // Actualizar factura
 Route::delete('/facturas/{factura}', [FacturaController::class, 'destroy'])->name('factura.destroy'); // Eliminar factura
 Route::get('/facturas/exportar', [FacturaController::class, 'export'])->name('factura.exportar'); //Export de excel
+
+Route::get('/reposiciones', [ReposicionController::class, 'index'])->name('reposicion.index');
+Route::get('/reposiciones/create', [ReposicionController::class, 'create'])->name('reposicion.create');
+Route::post('/reposiciones', [ReposicionController::class, 'store'])->name('reposicion.store');
+Route::get('/reposiciones/{reposicion}/edit', [ReposicionController::class, 'edit'])->name('reposicion.edit');
+Route::put('/reposiciones/{reposicion}', [ReposicionController::class, 'update'])->name('reposicion.update');
+Route::delete('/reposiciones/{reposicion}', [ReposicionController::class, 'destroy'])->name('reposicion.destroy');
+Route::patch('/reposicion/{reposicion}/solicitud/{solicitud}/quitar', [ReposicionController::class, 'detachSolicitud'])->name('reposicion.detachSolicitud');
+
+Route::get('/reposicion/{reposicion}/excel', [ReposicionController::class, 'exportExcel'])->name('reposicion.excel');

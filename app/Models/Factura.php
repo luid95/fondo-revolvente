@@ -20,4 +20,8 @@ class Factura extends Model
     {
         return $this->belongsTo(Solicitud::class);
     }
+    public function reposicion()
+    {
+        return $this->belongsToMany(Reposicion::class, 'factura_reposicion');
+    }
 }
