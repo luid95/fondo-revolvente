@@ -6,6 +6,7 @@ use App\Models\Reposicion;
 use App\Models\Solicitud;
 use Illuminate\Http\Request;
 
+use App\Exports\MultipleRepositionsExport;
 use App\Exports\ReposicionExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -127,5 +128,23 @@ class ReposicionController extends Controller
     {
         
         return Excel::download(new ReposicionExport($reposicion), 'Fondos_Revolventes_'.$reposicion->n_revolvencia.'.xlsx');
+    }
+
+    public function multipleExcel(Request $request)
+    {
+        if (!$request->has('reposiciones') || count($request->reposiciones) === 0) {
+            return back()->with('error', 'Debes seleccionar al menos una reposición para descargar.');
+        }
+
+        $ids = $request->input('reposiciones');
+
+        $reposiciones = Reposicion::with('solicitudes.facturas', 'solicitudes.area')->whereIn('id', $ids)->get();
+
+        if ($reposiciones->count() === 1) {
+            return $this->exportExcel($reposiciones->first());
+        }
+
+        // Si hay más de una, exporta con varias hojas
+        return Excel::download(new MultipleRepositionsExport($reposiciones), 'Fondos_Revolventes_Multiples.xlsx');
     }
 }

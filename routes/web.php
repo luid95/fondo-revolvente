@@ -42,3 +42,4 @@ Route::delete('/reposiciones/{reposicion}', [ReposicionController::class, 'destr
 Route::patch('/reposicion/{reposicion}/solicitud/{solicitud}/quitar', [ReposicionController::class, 'detachSolicitud'])->name('reposicion.detachSolicitud');
 
 Route::get('/reposicion/{reposicion}/excel', [ReposicionController::class, 'exportExcel'])->name('reposicion.excel');
+Route::get('/reposiciones/descargar-multiples', [ReposicionController::class, 'multipleExcel'])->name('reposicion.descarga.multiple');
