@@ -42,7 +42,6 @@ class SolicitudController extends Controller
     {
         
         $data = $request->validate([
-            'id' => 'required|numeric',
             'fecha' => 'required|date',
             'area' => 'required|numeric',
             'personas' => 'required|string',
@@ -53,37 +52,19 @@ class SolicitudController extends Controller
         $tags = json_decode($request->personas, true); // decode a array de objetos
         $nombres = array_column($tags, 'value'); // extrae sólo los valores
         $personas_string = implode('\\', $nombres); // convierte a string: "Luis,María,Pedro"
-        
-        // Buscar área con nombre o siglas iguales, sin importar si está eliminada o no
-        $solicitudExistente = Solicitud::withTrashed()
-            ->where(function ($query) use ($data) {
-                $query->where('id', $data['id']);
-            })
-            ->first();
-
-        if ($solicitudExistente) {
-            if ($solicitudExistente->trashed()) {
-                // Ya existía pero fue eliminada, mostrar mensaje de recuperación
-                return redirect()->route('solicitud.index')->with([
-                    'warning' => 'El ID de ese registro ya existía pero fue eliminada.Por favor eligir otro ID',
-                ]);
-            } else {
-                return redirect()->route('solicitud.index')->with('error', 'Ya existe una solicitud con ese ID.');
-            }
-        }
 
         $solicitud = new Solicitud();
-        $solicitud->id = $request->id;
         $solicitud->fecha = $request->fecha;
         $solicitud->area_id = $request->area;
         $solicitud->personas = $personas_string;
         $solicitud->uso = $request->uso;
         $solicitud->monto = $request->monto;
         $solicitud->saldo_restante = 0;
+        $solicitud->tipo = 'normal';
         $solicitud->estado = 'en proceso';
         $solicitud->save();
 
-         $this->recalcularSaldos();
+        $this->recalcularSaldos();
         return redirect()->route('solicitud.index')->with('success', 'Solicitud creada correctamente.');
     }
 
@@ -149,10 +130,21 @@ class SolicitudController extends Controller
         $solicitudes = Solicitud::orderBy('fecha')->orderBy('id')->get();
 
         $saldo = $montoDisponible;
+        
 
         foreach ($solicitudes as $solicitud) {
-            $saldo -= $solicitud->monto;
+
+            if ($solicitud->tipo === 'reposicion') {
+                $saldo += $solicitud->monto; // 💸 reposición repone fondos
+                
+            } 
+            
+            if ($solicitud->tipo === 'normal') {
+                $saldo -= $solicitud->monto; // 🧾 solicitud normal descuenta fondos
+            }
+
             $solicitud->saldo_restante = max($saldo, 0); // evitar saldo negativo
+            
             $solicitud->save();
         }
     }

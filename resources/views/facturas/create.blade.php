@@ -66,8 +66,9 @@
                 <label for="tipo_factura" class="form-label">Tipo de factura</label>
                 <select name="tipo_factura" class="form-select" required>
                     <option value="Gasto" {{ old('tipo_factura') == 'Gasto' ? 'selected' : '' }}>Gasto</option>
-                    <option value="Devolución" {{ old('tipo_factura') == 'Devolucion' ? 'selected' : '' }}>Devolución</option>
+                    <option value="Devolucion" {{ old('tipo_factura') == 'Devolucion' ? 'selected' : '' }}>Devolución</option>
                 </select>
+
             </div>
 
             <div class="col-md-3">

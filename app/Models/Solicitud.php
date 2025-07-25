@@ -19,7 +19,10 @@ class Solicitud extends Model
         'uso',
         'monto',
         'saldo_restante',
-        'estado'
+        'estado',
+        'reposicion_id',
+        'tipo',
+        'reposicion_generada_id'
     ];
 
     public function area()
@@ -35,6 +38,11 @@ class Solicitud extends Model
     public function reposicion()
     {
         return $this->belongsTo(Reposicion::class);
+    }
+
+    public function reposicionGenerada()
+    {
+        return $this->belongsTo(Reposicion::class, 'reposicion_generada_id');
     }
 
 }

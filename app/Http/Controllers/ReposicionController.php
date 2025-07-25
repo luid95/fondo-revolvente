@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Reposicion;
 use App\Models\Solicitud;
 use App\Models\Factura;
+use App\Models\Fondo;
 use Illuminate\Http\Request;
 
 use App\Exports\MultipleRepositionsExport;
@@ -57,6 +58,20 @@ class ReposicionController extends Controller
             'situacion' => 'Completado'
         ]);
 
+        // 🔢 Sumar importe total de las solicitudes seleccionadas
+        $importeTotal = Solicitud::whereIn('id', $request->solicitudes)->sum('monto');
+
+        // 🆕 Crear nueva solicitud de tipo 'reposicion'
+        Solicitud::create([
+            'monto' => $importeTotal,
+            'fecha' => $reposicion->fecha_reg,
+            'estado' => 'Finalizado', // O lo que aplique
+            'tipo' => 'reposicion',
+            'reposicion_generada_id' => $reposicion->id
+        ]);
+
+        $this->recalcularSaldos();
+
         return redirect()->route('reposicion.index');
     }
 
@@ -107,6 +122,26 @@ class ReposicionController extends Controller
             'situacion' => 'Completado'
         ]);
 
+        // 3. Unir ambas listas de IDs
+        $idsSolicitudesUnidas = array_unique(array_merge($idsSolicitudesActuales, $idsSolicitudesNuevas));
+
+        // 4. Calcular el importe total de esas solicitudes
+        $importeTotal = Solicitud::whereIn('id', $idsSolicitudesUnidas)->sum('monto');
+
+        // Buscar solicitud tipo = reposicion ya existente
+        $solicitudReposicion = Solicitud::where('tipo', 'reposicion')
+            ->where('reposicion_generada_id', $reposicion->id)
+            ->first();
+
+        // Si existe, actualízala con el nuevo total
+        if ($solicitudReposicion) {
+            $solicitudReposicion->monto = $importeTotal;
+            $solicitudReposicion->fecha = $reposicion->fecha_reg;
+            $solicitudReposicion->save();
+        }
+
+        $this->recalcularSaldos();
+            
         return redirect()->route('reposicion.index')->with('success', 'Reposición actualizada correctamente');
     }
 
@@ -160,5 +195,33 @@ class ReposicionController extends Controller
 
         // Si hay más de una, exporta con varias hojas
         return Excel::download(new MultipleRepositionsExport($reposiciones), 'Fondos_Revolventes_Multiples.xlsx');
+    }
+
+    protected function recalcularSaldos()
+    {
+        $fondo = Fondo::latest()->whereNull('deleted_at')->first();
+        $montoDisponible = $fondo ? $fondo->monto : 0;
+
+        // Obtener solicitudes ordenadas por fecha ascendente (o por id si quieres)
+        $solicitudes = Solicitud::orderBy('fecha')->orderBy('id')->get();
+
+        $saldo = $montoDisponible;
+        
+
+        foreach ($solicitudes as $solicitud) {
+
+            if ($solicitud->tipo === 'reposicion') {
+                $saldo += $solicitud->monto; // 💸 reposición repone fondos
+                
+            } 
+            
+            if ($solicitud->tipo === 'normal') {
+                $saldo -= $solicitud->monto; // 🧾 solicitud normal descuenta fondos
+            }
+
+            $solicitud->saldo_restante = max($saldo, 0); // evitar saldo negativo
+            
+            $solicitud->save();
+        }
     }
 }

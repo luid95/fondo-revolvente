@@ -30,16 +30,6 @@
         @csrf
         <div class="row mb-3">
             <div class="col-md-4">
-                <label for="id" class="form-label">ID:<span class="text-danger">*</span></label>
-                <input name="id" id="id" type="text" class="form-control" placeholder="ID" required>
-            </div>
-
-            <div class="col-md-4">
-                <label for="fecha" class="form-label">Fecha:<span class="text-danger">*</span></label>
-                <input name="fecha" id="fecha" type="date" class="form-control" required>
-            </div>
-
-            <div class="col-md-4">
                 <label for="area" class="form-label">Área<span class="text-danger">*</span></label>
                 <select name="area" id="area" class="form-select" required>
                     <option value="" disabled selected>Selecciona un área</option>
@@ -48,13 +38,21 @@
                     @endforeach
                 </select>
             </div>
-        </div>
 
-        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="fecha" class="form-label">Fecha:<span class="text-danger">*</span></label>
+                <input name="fecha" id="fecha" type="date" class="form-control" required>
+            </div>
+            
             <div class="col-md-4">
                 <label for="personas" class="form-label">Personas:<span class="text-danger">*</span></label>
                 <input name="personas" id="personas" type="text" class="form-control" placeholder="Agrega nombres separados" required>
             </div>
+            
+        </div>
+
+        <div class="row mb-3">
+            
 
             <div class="col-md-4">
                 <label for="uso" class="form-label">Uso:<span class="text-danger">*</span></label>
@@ -138,13 +136,15 @@
                         <td>${{ number_format($s->saldo_restante, 2) }}</td>
                         <td>{{ ucfirst($s->estado) }}</td>
                         <td class="text-nowrap">
-                            @if (is_null($s->reposicion_id))
+                            @if (is_null($s->reposicion_id) && $s->tipo !== 'reposicion')
                                 <a href="{{ route('solicitud.edit', $s->id) }}" class="btn btn-warning btn-sm">Editar</a>
                                 <form action="{{ route('solicitud.destroy', $s->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta solicitud?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                                 </form>
+                            @elseif ($s->tipo === 'reposicion')
+                                <span class="text-muted">Generado por Reposicion</span>
                             @else
                                 <span class="text-muted">Asignada</span>
                             @endif

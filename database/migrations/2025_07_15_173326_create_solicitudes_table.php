@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('solicitudes', function (Blueprint $table) {
-            $table->unsignedBigInteger('id')->primary();
-            $table->date('fecha');
-            $table->string('area');
-            $table->string('personas');
-            $table->string('uso');
-            $table->decimal('monto', 10, 2);
+            $table->bigIncrements('id');
+            $table->date('fecha')->nullable();
+            $table->string('area')->nullable();
+            $table->string('personas')->nullable();
+            $table->string('uso')->nullable();
+            $table->decimal('monto', 10, 2)->default(0);
             $table->decimal('saldo_restante', 10, 2)->default(0);
             $table->string('estado')->default('en proceso'); // en proceso | completado | eliminado
             $table->softDeletes();

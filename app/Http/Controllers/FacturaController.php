@@ -13,7 +13,7 @@ class FacturaController extends Controller
 {
     public function index(Request $request)
     {
-        $solicitudes = Solicitud::with('area')->get()->sortByDesc('id');
+        $solicitudes = Solicitud::where('tipo', 'normal')->with('area')->get()->sortByDesc('id');
         $solicitudId = $request->input('solicitud_id') ?? $solicitudes->first()?->id;
 
         $facturas = Factura::with('solicitud.area')
@@ -26,7 +26,7 @@ class FacturaController extends Controller
 
     public function create()
     {
-        $solicitudes = Solicitud::with('area')->get();
+        $solicitudes = Solicitud::where('tipo', 'normal')->with('area')->get();
         return view('facturas.create', compact('solicitudes'));
     }
 
@@ -53,7 +53,7 @@ class FacturaController extends Controller
 
     public function edit(Factura $factura)
     {
-        $solicitudes = Solicitud::with('area')->get();
+        $solicitudes = Solicitud::where('tipo', 'normal')->with('area')->get();
         return view('facturas.edit', compact('factura', 'solicitudes'));
     }
 
