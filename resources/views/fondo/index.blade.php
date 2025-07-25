@@ -49,6 +49,10 @@
       <div id="collapseAreas" class="accordion-collapse collapse show" aria-labelledby="headingAreas" data-bs-parent="#accordionAreas">
         <div class="accordion-body">
           <a href="{{ route('area.create') }}" class="btn btn-success mb-3">Nueva Área</a>
+          <form method="GET" action="{{ route('fondo.index') }}" class="mb-4 d-flex gap-2">
+              <input type="text" name="search" class="form-control" placeholder="Buscar por nombre o ID" value="{{ request('search') }}">
+              <button type="submit" class="btn btn-secondary">Buscar</button>
+          </form>
 
           <div class="table-responsive">
             <table class="table table-bordered table-striped align-middle">
@@ -89,15 +93,15 @@
           <nav class="d-flex justify-content-center mt-3">
             <ul class="pagination">
               <li class="page-item {{ $areas->onFirstPage() ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ $areas->previousPageUrl() }}">&laquo;</a>
+                <a class="page-link" href="{{ $areas->appends(request()->only('search'))->previousPageUrl() }}">&laquo;</a>
               </li>
               @for ($i = 1; $i <= $areas->lastPage(); $i++)
                 <li class="page-item {{ $areas->currentPage() == $i ? 'active' : '' }}">
-                  <a class="page-link" href="{{ $areas->url($i) }}">{{ $i }}</a>
+                  <a class="page-link" href="{{ $areas->appends(request()->only('search'))->url($i) }}">{{ $i }}</a>
                 </li>
               @endfor
               <li class="page-item {{ !$areas->hasMorePages() ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ $areas->nextPageUrl() }}">&raquo;</a>
+                <a class="page-link" href="{{ $areas->appends(request()->only('search'))->nextPageUrl() }}">&raquo;</a>
               </li>
             </ul>
           </nav>

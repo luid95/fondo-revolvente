@@ -28,17 +28,17 @@
         @csrf
         <div class="row mb-3">
             <div class="col-md-4">
-                <label for="id" class="form-label">ID</label>
+                <label for="id" class="form-label">ID:<span class="text-danger">*</span></label>
                 <input name="id" id="id" type="text" class="form-control" placeholder="ID" required>
             </div>
 
             <div class="col-md-4">
-                <label for="fecha" class="form-label">Fecha</label>
+                <label for="fecha" class="form-label">Fecha:<span class="text-danger">*</span></label>
                 <input name="fecha" id="fecha" type="date" class="form-control" required>
             </div>
 
             <div class="col-md-4">
-                <label for="area" class="form-label">Área</label>
+                <label for="area" class="form-label">Área<span class="text-danger">*</span></label>
                 <select name="area" id="area" class="form-select" required>
                     <option value="" disabled selected>Selecciona un área</option>
                     @foreach($areas as $area)
@@ -50,17 +50,17 @@
 
         <div class="row mb-3">
             <div class="col-md-4">
-                <label for="personas" class="form-label">Personas</label>
-                <input name="personas" id="personas" class="form-control" placeholder="Agrega nombres separados" required>
+                <label for="personas" class="form-label">Personas:<span class="text-danger">*</span></label>
+                <input name="personas" id="personas" type="text" class="form-control" placeholder="Agrega nombres separados" required>
             </div>
 
             <div class="col-md-4">
-                <label for="uso" class="form-label">Uso</label>
+                <label for="uso" class="form-label">Uso:<span class="text-danger">*</span></label>
                 <input name="uso" id="uso" type="text" class="form-control" placeholder="Uso" required>
             </div>
 
             <div class="col-md-4">
-                <label for="monto" class="form-label">Monto</label>
+                <label for="monto" class="form-label">Monto:<span class="text-danger">*</span></label>
                 <input name="monto" id="monto" type="number" step="0.01" class="form-control" placeholder="Monto" required>
             </div>
         </div>
@@ -70,7 +70,40 @@
         </div>
     </form>
 
+    <h3>Filtro de búsqueda</h3>
+    <!-- Filtro de busqueda -->
+    <form method="GET" action="{{ route('solicitud.index') }}" class="mb-4">
+        <div class="row g-2">
+            <div class="col-md-3">
+            <input type="text" name="id" class="form-control" placeholder="Buscar por ID" value="{{ request('id') }}">
+            </div>
 
+            <div class="col-md-3">
+            <select name="area_id" class="form-select">
+                <option value="">Todas las áreas</option>
+                @foreach($areas as $area)
+                <option value="{{ $area->id }}" {{ request('area_id') == $area->id ? 'selected' : '' }}>
+                    {{ $area->nombre }}
+                </option>
+                @endforeach
+            </select>
+            </div>
+
+            <div class="col-md-3">
+            <select name="estado" class="form-select">
+                <option value="">Todos los estados</option>
+                <option value="en proceso" {{ request('estado') == 'en proceso' ? 'selected' : '' }}>En proceso</option>
+                <option value="finalizado" {{ request('estado') == 'finalizado' ? 'selected' : '' }}>Finalizado</option>
+                <!-- Agrega más estados si los usas -->
+            </select>
+            </div>
+
+            <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+            <a href="{{ route('solicitud.index') }}" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </div>
+    </form>
 
     <div class="table-responsive">
         <table class="table table-bordered table-striped align-middle">

@@ -18,17 +18,17 @@
         @csrf
 
         <div class="mb-3">
-            <label>Nombre:</label>
+            <label>Nombre<span class="text-danger">*</span>:</label>
             <input type="text" name="nombre" class="form-control" required>
         </div>
 
         <div class="mb-3">
-            <label>Código:</label>
+            <label>Código<span class="text-danger">*</span>:</label>
             <input type="text" name="codigo" class="form-control" required>
         </div>
 
         <div class="mb-3">
-            <label>Siglas:</label>
+            <label>Siglas<span class="text-danger">*</span>:</label>
             <input type="text" name="siglas" class="form-control">
         </div>
 

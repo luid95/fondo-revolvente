@@ -24,12 +24,7 @@ class AreaController extends Controller
         ]);
 
         // Buscar área con nombre o siglas iguales, sin importar si está eliminada o no
-        $areaExistente = Area::withTrashed()
-            ->where(function ($query) use ($data) {
-                $query->where('nombre', $data['nombre'])
-                    ->orWhere('siglas', $data['siglas']);
-            })
-            ->first();
+        $areaExistente = $this->buscarAreaExistente($data);
 
         if ($areaExistente) {
             if ($areaExistente->trashed()) {
@@ -83,8 +78,23 @@ class AreaController extends Controller
 
     public function destroy( Area $area)
     {
-         $area->delete();
+        // Verificar si el área está relacionada con alguna solicitud
+        if ($area->solicitudes()->exists()) {
+            return redirect()->route('fondo.index')
+                ->with('error', 'No se puede eliminar el área porque está asociada a una o más solicitudes.');
+        }
+        
+        $area->delete();
 
         return redirect()->route('fondo.index')->with('success', 'Área eliminada correctamente.');
+    }
+
+    private function buscarAreaExistente(array $data)
+    {
+        return Area::withTrashed()
+            ->where(function ($query) use ($data) {
+                $query->where('nombre', $data['nombre'])
+                    ->orWhere('siglas', $data['siglas']);
+            })->first();
     }
 }

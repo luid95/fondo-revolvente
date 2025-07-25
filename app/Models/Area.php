@@ -12,4 +12,9 @@ class Area extends Model
     protected $table = 'areas';
 
     protected $fillable = ['nombre', 'codigo', 'siglas'];
+
+    public function solicitudes()
+    {
+        return $this->hasMany(Solicitud::class);
+    }
 }

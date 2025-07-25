@@ -9,12 +9,12 @@
 
     <div class="row mb-3">
       <div class="col-md-4">
-        <label for="fecha" class="form-label">Fecha</label>
+        <label for="fecha" class="form-label">Fecha:<span class="text-danger">*</span></label>
         <input name="fecha" id="fecha" type="date" class="form-control" value="{{ $solicitud->fecha }}" required>
       </div>
 
       <div class="col-md-4">
-        <label for="area" class="form-label">Área</label>
+        <label for="area" class="form-label">Área:<span class="text-danger">*</span></label>
         <select name="area" id="area" class="form-select" required>
           <option value="" disabled>Selecciona un área</option>
           @foreach ($areas as $area)
@@ -27,7 +27,7 @@
       </div>
 
       <div class="col-md-4">
-        <label for="personas" class="form-label">Personas</label>
+        <label for="personas" class="form-label">Personas:<span class="text-danger">*</span></label>
 
         @php
             // Convertimos el string "Luis\Maria\Pedro" a array
@@ -50,12 +50,12 @@
 
     <div class="row mb-3">
       <div class="col-md-6">
-        <label for="uso" class="form-label">Uso</label>
+        <label for="uso" class="form-label">Uso:<span class="text-danger">*</span></label>
         <input name="uso" id="uso" type="text" class="form-control" value="{{ $solicitud->uso }}" required>
       </div>
 
       <div class="col-md-6">
-        <label for="monto" class="form-label">Monto</label>
+        <label for="monto" class="form-label">Monto:<span class="text-danger">*</span></label>
         <input name="monto" id="monto" type="number" step="0.01" class="form-control" value="{{ $solicitud->monto }}" required>
       </div>
     </div>

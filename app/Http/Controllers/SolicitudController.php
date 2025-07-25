@@ -10,12 +10,24 @@ use Illuminate\Support\Facades\DB;
 
 class SolicitudController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $solicitudes = Solicitud::with('area')
-        ->whereNull('deleted_at')
-        ->orderBy('id')
-        ->paginate(10);
+        $query = Solicitud::with('area')
+            ->whereNull('deleted_at');
+
+        if ($request->filled('id')) {
+            $query->where('id', $request->id);
+        }
+
+        if ($request->filled('area_id')) {
+            $query->where('area_id', $request->area_id);
+        }
+
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        $solicitudes = $query->orderBy('id')->paginate(10)->appends($request->query());
 
         $fondo = Fondo::latest()->first();
         $monto = $fondo && !$fondo->deleted_at ? $fondo->monto : 0;
