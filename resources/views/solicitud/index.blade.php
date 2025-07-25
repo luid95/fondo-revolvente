@@ -3,6 +3,7 @@
 <div class="container">
     <h1>Listado de Solicitudes</h1>
 
+    {{-- Mensajes flash --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show">
             {{ session('success') }}
@@ -24,6 +25,7 @@
         </div>
     @endif
 
+    {{-- Formulario para crear nueva solicitud --}}
     <form action="{{ route('solicitud.store') }}" method="POST" class="mb-4">
         @csrf
         <div class="row mb-3">
@@ -70,41 +72,41 @@
         </div>
     </form>
 
+    {{-- Filtro de búsqueda --}}
     <h3>Filtro de búsqueda</h3>
-    <!-- Filtro de busqueda -->
     <form method="GET" action="{{ route('solicitud.index') }}" class="mb-4">
         <div class="row g-2">
             <div class="col-md-3">
-            <input type="text" name="id" class="form-control" placeholder="Buscar por ID" value="{{ request('id') }}">
+                <input type="text" name="id" class="form-control" placeholder="Buscar por ID" value="{{ request('id') }}">
             </div>
 
             <div class="col-md-3">
-            <select name="area_id" class="form-select">
-                <option value="">Todas las áreas</option>
-                @foreach($areas as $area)
-                <option value="{{ $area->id }}" {{ request('area_id') == $area->id ? 'selected' : '' }}>
-                    {{ $area->nombre }}
-                </option>
-                @endforeach
-            </select>
+                <select name="area_id" class="form-select">
+                    <option value="">Todas las áreas</option>
+                    @foreach($areas as $area)
+                        <option value="{{ $area->id }}" {{ request('area_id') == $area->id ? 'selected' : '' }}>
+                            {{ $area->nombre }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="col-md-3">
-            <select name="estado" class="form-select">
-                <option value="">Todos los estados</option>
-                <option value="en proceso" {{ request('estado') == 'en proceso' ? 'selected' : '' }}>En proceso</option>
-                <option value="finalizado" {{ request('estado') == 'finalizado' ? 'selected' : '' }}>Finalizado</option>
-                <!-- Agrega más estados si los usas -->
-            </select>
+                <select name="estado" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="en proceso" {{ request('estado') == 'en proceso' ? 'selected' : '' }}>En proceso</option>
+                    <option value="finalizado" {{ request('estado') == 'finalizado' ? 'selected' : '' }}>Finalizado</option>
+                </select>
             </div>
 
             <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Buscar</button>
-            <a href="{{ route('solicitud.index') }}" class="btn btn-secondary">Limpiar</a>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+                <a href="{{ route('solicitud.index') }}" class="btn btn-secondary">Limpiar</a>
             </div>
         </div>
     </form>
 
+    {{-- Tabla de solicitudes --}}
     <div class="table-responsive">
         <table class="table table-bordered table-striped align-middle">
             <thead class="table-dark">
@@ -121,14 +123,7 @@
                 </tr>
             </thead>
             <tbody>
-                @php
-                    $saldoRestante = $monto;
-                @endphp
-
                 @forelse($solicitudes as $s)
-                    @php
-                        $saldoRestante -= $s->monto;
-                    @endphp
                     <tr>
                         <td>{{ $s->id }}</td>
                         <td>{{ \Carbon\Carbon::parse($s->fecha)->format('Y-m-d') }}</td>
@@ -140,11 +135,10 @@
                         </td>
                         <td>{{ $s->uso }}</td>
                         <td>${{ number_format($s->monto, 2) }}</td>
-                        <td>${{ number_format($saldoRestante, 2) }}</td>
+                        <td>${{ number_format($s->saldo_restante, 2) }}</td>
                         <td>{{ ucfirst($s->estado) }}</td>
                         <td class="text-nowrap">
                             <a href="{{ route('solicitud.edit', $s->id) }}" class="btn btn-warning btn-sm">Editar</a>
-
                             <form action="{{ route('solicitud.destroy', $s->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta solicitud?')">
                                 @csrf
                                 @method('DELETE')
@@ -154,35 +148,26 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center">No hay solicitudes registradas.</td>
+                        <td colspan="9" class="text-center">No hay solicitudes registradas.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    <!-- Controles de paginación manual -->
+    {{-- Paginación --}}
     <nav class="d-flex justify-content-center mt-3">
         <ul class="pagination">
-            <!-- Botón anterior -->
             <li class="page-item {{ $solicitudes->onFirstPage() ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ $solicitudes->previousPageUrl() }}" aria-label="Anterior">
-                    &laquo;
-                </a>
+                <a class="page-link" href="{{ $solicitudes->previousPageUrl() }}" aria-label="Anterior">&laquo;</a>
             </li>
-
-            <!-- Números de página -->
             @for ($i = 1; $i <= $solicitudes->lastPage(); $i++)
                 <li class="page-item {{ $solicitudes->currentPage() == $i ? 'active' : '' }}">
                     <a class="page-link" href="{{ $solicitudes->url($i) }}">{{ $i }}</a>
                 </li>
             @endfor
-
-            <!-- Botón siguiente -->
             <li class="page-item {{ !$solicitudes->hasMorePages() ? 'disabled' : '' }}">
-                <a class="page-link" href="{{ $solicitudes->nextPageUrl() }}" aria-label="Siguiente">
-                    &raquo;
-                </a>
+                <a class="page-link" href="{{ $solicitudes->nextPageUrl() }}" aria-label="Siguiente">&raquo;</a>
             </li>
         </ul>
     </nav>
@@ -191,19 +176,15 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var input = document.querySelector('input[name=personas]');
-
         new Tagify(input, {
-            enforceWhitelist: false, // Permite ingresar nombres nuevos
-            delimiters: ",",         // Separador de tags (coma)
-            editTags: false,         // Desactiva la edición del tag al hacer clic
+            enforceWhitelist: false,
+            delimiters: ",",
+            editTags: false,
             dropdown: {
-                enabled: 0,          // Mostrar sugerencias al escribir (puedes modificar a 1 o más)
+                enabled: 0,
                 closeOnSelect: false
             }
         });
     });
 </script>
-
-
-
 @endsection

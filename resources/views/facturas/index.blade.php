@@ -17,9 +17,9 @@
 
     <a href="{{ route('factura.create') }}" class="btn btn-primary mb-3">Agregar Factura</a>
 
-    <a href="{{ route('factura.exportar', ['solicitud_id' => request('solicitud_id')]) }}" class="btn btn-outline-success mb-3">
+    <!-- <a href="{{ route('factura.exportar', ['solicitud_id' => request('solicitud_id')]) }}" class="btn btn-outline-success mb-3">
         Exportar a Excel
-    </a>
+    </a> -->
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             {{ session('error') }}
@@ -30,26 +30,24 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Fecha Registro</th>
-                <th>Fecha Factura</th>
-                <th>Proveedor</th>
-                <th>Importe</th>
                 <th>Concepto de gasto</th>
+                <th>Tipo de Factura</th>
                 <th>Situación</th>
                 <th>Área</th>
+                <th>Proveedor</th>
+                <th>Importe</th>
                 <th>O.G.</th>
                 <th>C.C.</th>
+                <th>Fecha Registro</th>
+                <th>Fecha Factura</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($facturas as $factura)
                 <tr>
-                    <td>{{ $factura->fecha_registro }}</td>
-                    <td>{{ $factura->fecha_factura }}</td>
-                    <td>{{ $factura->proveedor }}</td>
-                    <td>${{ number_format($factura->importe, 2) }}</td>
                     <td>{{ $factura->concepto_gasto }}</td>
+                    <td>{{ $factura->tipo_factura }}</td>
                     <td>
                         @foreach(explode(',', $factura->situacion) as $sit)
                             @php
@@ -64,8 +62,12 @@
                         @endforeach
                     </td>
                     <td>{{ $factura->solicitud->area->nombre ?? 'N/A' }}</td>
+                    <td>{{ $factura->proveedor }}</td>
+                    <td>${{ number_format($factura->importe, 2) }}</td>
                     <td>{{ $factura->objeto_gasto ?? 'N/A' }}</td>
                     <td>{{ $factura->c_c ?? 'N/A' }}</td>
+                    <td>{{ $factura->fecha_registro }}</td>
+                    <td>{{ $factura->fecha_factura }}</td>
                     <td>
                         <a href="{{ route('factura.edit', $factura) }}" class="btn btn-sm btn-warning">Editar</a>
                         <form action="{{ route('factura.destroy', $factura) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta factura?')">
@@ -80,7 +82,7 @@
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="3" class="text-end">Total Importe:</th>
+                <th colspan="5" class="text-end">Total Importe:</th>
                 <th>${{ number_format($facturas->sum('importe'), 2) }}</th>
             </tr>
         </tfoot>

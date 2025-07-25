@@ -25,7 +25,7 @@
                 <select name="solicitud_id" class="form-select" required>
                     @foreach ($solicitudes as $sol)
                         <option value="{{ $sol->id }}" {{ $factura->solicitud_id == $sol->id ? 'selected' : '' }}>
-                            #{{ $sol->id }} - {{ $sol->area->nombre ?? 'Sin área' }}
+                            #{{ $sol->id }} - {{ $sol->area->nombre ?? 'Sin área' }} - Fecha: {{ $sol->fecha}} - Uso: {{ $sol->uso}} - Monto: ${{ $sol->monto}}
                         </option>
                     @endforeach
                 </select>
@@ -57,29 +57,42 @@
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label for="importe" class="form-label">Importe</label>
                 <input type="number" step="0.01" name="importe" class="form-control" value="{{ $factura->importe }}" required>
             </div>
-            <div class="col-md-4">
+
+            <div class="form-group mb-3">
+                <label for="tipo_factura">Tipo de Factura</label>
+                <select name="tipo_factura" id="tipo_factura" class="form-control" required>
+                    <option value="Gasto" {{ old('tipo_factura', $factura->tipo_factura ?? '') == 'Gasto' ? 'selected' : '' }}>Gasto</option>
+                    <option value="Devolucion" {{ old('tipo_factura', $factura->tipo_factura ?? '') == 'Devolución' ? 'selected' : '' }}>Devolución</option>
+                </select>
+
+            </div>
+
+
+
+            <div class="col-md-3">
                 <label for="situacion" class="form-label">Situación</label>
                 <select name="situacion" id="situacion" class="form-select" required>
-                    <option value="">Selecciona una situación</option>
                     @php
                         $situaciones = ['Comprobado', 'Completado', 'Devolucion de Recursos', 'Tramitado'];
                     @endphp
                     @foreach ($situaciones as $s)
-                        <option value="{{ $s }}" {{ old('situacion', $factura->situacion ?? '') == $s ? 'selected' : '' }}>
-                            {{ $s }}
-                        </option>
+                        <option value="{{ $s }}" {{ old('situacion', $factura->situacion) == $s ? 'selected' : '' }}>{{ $s }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-2">
+
+            <div class="col-md-3">
                 <label for="objeto_gasto" class="form-label">Objeto Gasto</label>
                 <input type="text" name="objeto_gasto" class="form-control" value="{{ $factura->objeto_gasto }}">
             </div>
-            <div class="col-md-2">
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
                 <label for="c_c" class="form-label">C.C.</label>
                 <input type="text" name="c_c" class="form-control" value="{{ $factura->c_c }}">
             </div>
@@ -89,5 +102,4 @@
         <a href="{{ route('factura.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
-
 @endsection

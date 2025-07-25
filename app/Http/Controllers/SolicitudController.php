@@ -83,6 +83,7 @@ class SolicitudController extends Controller
         $solicitud->estado = 'en proceso';
         $solicitud->save();
 
+         $this->recalcularSaldos();
         return redirect()->route('solicitud.index')->with('success', 'Solicitud creada correctamente.');
     }
 
@@ -115,8 +116,9 @@ class SolicitudController extends Controller
         $solicitud->monto = $request->monto;
         $solicitud->save();
 
+        $this->recalcularSaldos();
+
         return redirect()->route('solicitud.index');
-        //return redirect()->back();
     }
 
     public function destroy(Solicitud $solicitud)
@@ -136,6 +138,23 @@ class SolicitudController extends Controller
     {
         $solicitud = Solicitud::with('facturas.proveedor', 'area')->findOrFail($id);
         return view('partials.facturas_preview', compact('solicitud'));
+    }
+
+    protected function recalcularSaldos()
+    {
+        $fondo = Fondo::latest()->whereNull('deleted_at')->first();
+        $montoDisponible = $fondo ? $fondo->monto : 0;
+
+        // Obtener solicitudes ordenadas por fecha ascendente (o por id si quieres)
+        $solicitudes = Solicitud::orderBy('fecha')->orderBy('id')->get();
+
+        $saldo = $montoDisponible;
+
+        foreach ($solicitudes as $solicitud) {
+            $saldo -= $solicitud->monto;
+            $solicitud->saldo_restante = max($saldo, 0); // evitar saldo negativo
+            $solicitud->save();
+        }
     }
 
 }

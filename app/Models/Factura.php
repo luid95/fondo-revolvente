@@ -13,7 +13,7 @@ class Factura extends Model
     protected $fillable = [
         'fecha_registro', 'fecha_factura', 'solicitud_id',
         'factura', 'proveedor', 'concepto_gasto', 'situacion',
-        'importe', 'objeto_gasto', 'c_c'
+        'importe', 'objeto_gasto', 'c_c', 'tipo_factura',
     ];
 
     public function solicitud()

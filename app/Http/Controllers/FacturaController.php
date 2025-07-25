@@ -18,7 +18,7 @@ class FacturaController extends Controller
 
         $facturas = Factura::with('solicitud.area')
             ->where('solicitud_id', $solicitudId)
-            ->latest()
+            ->orderBy('created_at', 'asc')
             ->get();
 
         return view('facturas.index', compact('facturas', 'solicitudes', 'solicitudId'));
@@ -43,6 +43,7 @@ class FacturaController extends Controller
             'importe' => 'required|numeric',
             'objeto_gasto' => 'required',
             'c_c' => 'required',
+            'tipo_factura' => 'required|in:Gasto,Devolucion',
         ]);
 
         Factura::create($request->all());
@@ -69,6 +70,7 @@ class FacturaController extends Controller
             'importe' => 'required|numeric',
             'objeto_gasto' => 'required',
             'c_c' => 'required',
+            'tipo_factura' => 'required|in:Gasto,Devolucion',
         ]);
 
         $factura->update($request->all());
