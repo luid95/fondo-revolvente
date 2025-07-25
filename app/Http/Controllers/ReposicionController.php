@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Reposicion;
 use App\Models\Solicitud;
+use App\Models\Factura;
 use Illuminate\Http\Request;
 
 use App\Exports\MultipleRepositionsExport;
@@ -46,7 +47,15 @@ class ReposicionController extends Controller
         
         $reposicion = Reposicion::create($request->only(['nombre_rep', 'n_revolvencia', 'fecha_reg']));
 
-        Solicitud::whereIn('id', $request->solicitudes)->update(['reposicion_id' => $reposicion->id]);
+        Solicitud::whereIn('id', $request->solicitudes)->update([
+            'reposicion_id' => $reposicion->id,
+            'estado' => 'Finalizado'
+        ]);
+
+        // Cambiar situación de facturas asociadas a esta solicitud a "Comprobado"
+        Factura::whereIn('solicitud_id', $request->solicitudes)->update([
+            'situacion' => 'Completado'
+        ]);
 
         return redirect()->route('reposicion.index');
     }
@@ -55,11 +64,10 @@ class ReposicionController extends Controller
     {
         // Obtener solicitudes disponibles + las ya asociadas a esta reposición
         $solicitudes = Solicitud::where(function ($query) use ($reposicion) {
-            $query->whereNull('reposicion_id')
-                ->orWhere('reposicion_id', $reposicion->id);
-        })
-        ->whereDoesntHave('facturas', function ($q) {
-            $q->where('situacion', '!=', 'Comprobado');
+            $query->where('reposicion_id', $reposicion->id) // ya asociadas a esta reposición
+                  ->orWhereHas('facturas', function ($q) {
+                      $q->where('situacion', 'Comprobado'); // disponibles para asociar
+                  });
         })
         ->get()
         ->filter(function ($solicitud) {
@@ -78,26 +86,26 @@ class ReposicionController extends Controller
             'solicitudes' => 'array'
         ]);
 
-        // Asignar los campos manualmente
         $reposicion->n_revolvencia = $request->input('n_revolvencia');
         $reposicion->fecha_reg = $request->input('fecha_reg');
-
-        // Guardar cambios
         $reposicion->save();
 
-        // Desvincular solicitudes anteriores (dejar reposicion_id en null)
-        $solicitudesPrevias = Solicitud::where('reposicion_id', $reposicion->id)->get();
-        foreach ($solicitudesPrevias as $sol) {
-            $sol->reposicion_id = null;
-            $sol->save();
-        }
+        // IDs de solicitudes enviadas desde el formulario
+        $idsSolicitudesNuevas = collect($request->solicitudes)->filter()->all();
+        
+        // IDs actuales asociadas a esta reposición
+        $idsSolicitudesActuales = Solicitud::where('reposicion_id', $reposicion->id)->pluck('id')->toArray();
 
-        // Vincular nuevas solicitudes
-        $nuevasSolicitudes = Solicitud::whereIn('id', $request->solicitudes)->get();
-        foreach ($nuevasSolicitudes as $sol) {
-            $sol->reposicion_id = $reposicion->id;
-            $sol->save();
-        }
+        // Asociar las nuevas (incluye también las que ya estaban, sin problema)
+        Solicitud::whereIn('id', $idsSolicitudesNuevas)->update([
+            'reposicion_id' => $reposicion->id,
+            'estado' => 'Finalizado'
+        ]);
+
+        // Cambiar situación de facturas asociadas a esta solicitud a "Comprobado"
+        Factura::whereIn('solicitud_id', $idsSolicitudesNuevas)->update([
+            'situacion' => 'Completado'
+        ]);
 
         return redirect()->route('reposicion.index')->with('success', 'Reposición actualizada correctamente');
     }
@@ -118,8 +126,14 @@ class ReposicionController extends Controller
     {
         if ($solicitud->reposicion_id === $reposicion->id) {
             $solicitud->reposicion_id = null;
+            $solicitud->estado = 'En proceso';
             $solicitud->save();
         }
+
+        // Cambiar situación de facturas asociadas a esta solicitud a "Comprobado"
+        $factura = Factura::where('solicitud_id', $solicitud->id)->get();
+        $factura[0]->situacion = 'Comprobado';
+        $factura[0]->save();
 
         return back()->with('status', 'Solicitud desvinculada correctamente.');
     }

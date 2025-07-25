@@ -138,12 +138,16 @@
                         <td>${{ number_format($s->saldo_restante, 2) }}</td>
                         <td>{{ ucfirst($s->estado) }}</td>
                         <td class="text-nowrap">
-                            <a href="{{ route('solicitud.edit', $s->id) }}" class="btn btn-warning btn-sm">Editar</a>
-                            <form action="{{ route('solicitud.destroy', $s->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta solicitud?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                            </form>
+                            @if (is_null($s->reposicion_id))
+                                <a href="{{ route('solicitud.edit', $s->id) }}" class="btn btn-warning btn-sm">Editar</a>
+                                <form action="{{ route('solicitud.destroy', $s->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta solicitud?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                </form>
+                            @else
+                                <span class="text-muted">Asignada</span>
+                            @endif
                         </td>
                     </tr>
                 @empty

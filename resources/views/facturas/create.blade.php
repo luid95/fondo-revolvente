@@ -74,7 +74,7 @@
                 <label for="situacion" class="form-label">Situación</label>
                 <select name="situacion" id="situacion" class="form-select" required>
                     @php
-                        $situaciones = ['Comprobado', 'Completado', 'Devolucion de Recursos', 'Tramitado'];
+                        $situaciones = ['Comprobado', 'Devolucion de Recursos', 'Tramitado'];
                     @endphp
                     @foreach ($situaciones as $s)
                         <option value="{{ $s }}" {{ old('situacion', 'Comprobado') == $s ? 'selected' : '' }}>{{ $s }}</option>

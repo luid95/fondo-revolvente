@@ -55,6 +55,13 @@
             <label for="concepto_gasto" class="form-label">Concepto del gasto</label>
             <textarea name="concepto_gasto" class="form-control" rows="2" required>{{ $factura->concepto_gasto }}</textarea>
         </div>
+        <div class="form-group mb-3">
+            <label for="tipo_factura">Tipo de Factura</label>
+            <select name="tipo_factura" id="tipo_factura" class="form-control" required>
+                <option value="Gasto" {{ old('tipo_factura', $factura->tipo_factura ?? '') == 'Gasto' ? 'selected' : '' }}>Gasto</option>
+                <option value="Devolucion" {{ old('tipo_factura', $factura->tipo_factura ?? '') == 'Devolución' ? 'selected' : '' }}>Devolución</option>
+            </select>
+        </div>
 
         <div class="row mb-3">
             <div class="col-md-3">
@@ -62,22 +69,11 @@
                 <input type="number" step="0.01" name="importe" class="form-control" value="{{ $factura->importe }}" required>
             </div>
 
-            <div class="form-group mb-3">
-                <label for="tipo_factura">Tipo de Factura</label>
-                <select name="tipo_factura" id="tipo_factura" class="form-control" required>
-                    <option value="Gasto" {{ old('tipo_factura', $factura->tipo_factura ?? '') == 'Gasto' ? 'selected' : '' }}>Gasto</option>
-                    <option value="Devolucion" {{ old('tipo_factura', $factura->tipo_factura ?? '') == 'Devolución' ? 'selected' : '' }}>Devolución</option>
-                </select>
-
-            </div>
-
-
-
             <div class="col-md-3">
                 <label for="situacion" class="form-label">Situación</label>
                 <select name="situacion" id="situacion" class="form-select" required>
                     @php
-                        $situaciones = ['Comprobado', 'Completado', 'Devolucion de Recursos', 'Tramitado'];
+                        $situaciones = ['Comprobado', 'Devolucion de Recursos', 'Tramitado'];
                     @endphp
                     @foreach ($situaciones as $s)
                         <option value="{{ $s }}" {{ old('situacion', $factura->situacion) == $s ? 'selected' : '' }}>{{ $s }}</option>

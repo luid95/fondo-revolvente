@@ -69,11 +69,16 @@
                     <td>{{ $factura->fecha_registro }}</td>
                     <td>{{ $factura->fecha_factura }}</td>
                     <td>
-                        <a href="{{ route('factura.edit', $factura) }}" class="btn btn-sm btn-warning">Editar</a>
-                        <form action="{{ route('factura.destroy', $factura) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta factura?')">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-sm btn-danger">Eliminar</button>
-                        </form>
+                        
+                        @if ($factura->situacion !== 'Completado')
+                            <a href="{{ route('factura.edit', $factura) }}" class="btn btn-sm btn-warning">Editar</a>
+                            <form action="{{ route('factura.destroy', $factura) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta factura?')">
+                                @csrf @method('DELETE')
+                                <button class="btn btn-sm btn-danger">Eliminar</button>
+                            </form>
+                        @else
+                            <span class="text-muted">Asignado</span>
+                        @endif
                     </td>
                 </tr>
             @empty
@@ -108,4 +113,13 @@
     </div>
 
 </div>
+<script>
+    $(document).ready(function() {
+        $('#solicitud_id').select2({
+            placeholder: 'Busca una solicitud...',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
 @endsection
